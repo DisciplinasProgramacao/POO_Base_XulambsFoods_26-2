@@ -5,10 +5,10 @@ namespace XulambsFoods {
         private static int s_ultimoPedido=0;
         private int _idPedido;
         private DateOnly _data;
-        private LinkedList<Pizza> _pizzas;
+        protected LinkedList<Pizza> _pizzas;
         private bool _aberto;
 
-       public Pedido() {
+        public Pedido() {
             _pizzas = new LinkedList<Pizza>();
             _aberto = true;
             _data =  DateOnly.FromDateTime(DateTime.Now);
@@ -16,9 +16,9 @@ namespace XulambsFoods {
             _idPedido = _data.Day*100 + s_ultimoPedido;
         }
 
-        private bool PodeAdicionar() {
+        protected virtual bool PodeAdicionar() {
             return _aberto;
-        }
+        } //virtual: autorização para ser sobrescrito.
 
         public int GetID() {
             return _idPedido;
@@ -34,7 +34,7 @@ namespace XulambsFoods {
             _aberto = false;
         }
 
-        public double PrecoAPagar() {
+        public virtual double PrecoAPagar() {
             double preco = 0d;
             foreach (Pizza pizza in _pizzas) {
                 preco += pizza.CalcularValorFinal();
@@ -42,7 +42,7 @@ namespace XulambsFoods {
             return preco;
         }
 
-        public string Relatorio() {
+        public virtual string Relatorio() {
             StringBuilder relat = new StringBuilder($"Pedido nº{_idPedido} - {_data}\n");
             string estado = "fechado";
             if (_aberto)
