@@ -2,18 +2,22 @@
 
 using System.Text;
 
-namespace XulambsFoods {
-    public class XulambsApp {
+namespace XulambsFoods
+{
+    public class XulambsApp
+    {
         static LinkedList<Pedido> pedidos;
-        static string versao = "0.3";
+        static string versao = "0.4";
 
         #region utilidades
-        static void Pausa() {
+        static void Pausa()
+        {
             Console.WriteLine("\nDigite enter para continuar.");
             Console.ReadKey();
         }
 
-        static void Cabecalho() {
+        static void Cabecalho()
+        {
             Console.Clear();
             Console.WriteLine($"Xulambs Pizza v{versao}");
             Console.WriteLine("===================");
@@ -21,13 +25,16 @@ namespace XulambsFoods {
         #endregion
 
         #region configuração
-        static void Config() {
+        static void Config()
+        {
             pedidos = new LinkedList<Pedido>();
+
         }
         #endregion
-       
+
         #region menus
-        static int MenuPrincipal() {
+        static int MenuPrincipal()
+        {
             Cabecalho();
             StringBuilder menu = new StringBuilder();
             menu.AppendLine("1 - Abrir um pedido");
@@ -42,16 +49,18 @@ namespace XulambsFoods {
         #endregion
 
         #region relatorios
-        static void ImprimirDadosPedido(Pedido pedido) {
+        static void ImprimirDadosPedido(Pedido pedido)
+        {
             Cabecalho();
-            
+
             //null safety para impressão: se não existir, pega uma string "padrão"
             string msg = pedido?.Relatorio() ?? "Pedido não encontrado.";
-            
+
             Console.WriteLine(msg);
         }
 
-        static void ImprimirDadosPizza(Pizza pizza) {
+        static void ImprimirDadosPizza(Pizza pizza)
+        {
             Console.WriteLine();
             Console.WriteLine("Pizza comprada:\n ");
             Console.WriteLine(pizza.GerarCupom());
@@ -59,22 +68,45 @@ namespace XulambsFoods {
         }
         #endregion
 
+        #region borda
+        public static void EscolherBorda(Pizza pizza)
+        {
+            string[] bordas = Enum.GetNames<EBorda>();
+            Console.WriteLine("Escolha uma borda:");
+            int i = 1;
+            foreach (string nome in bordas)
+            {
+                Console.WriteLine($"{i} - {nome}");
+                i++;
+            }
+            Console.Write("Sua escolha: ");
+            int escolha = int.Parse(Console.ReadLine());
+            EBorda borda = Enum.GetValues<EBorda>()[escolha - 1];
+
+            pizza.AdicionarBorda(borda);
+        }
+        #endregion
+
         #region pizza
-        static int EscolherIngredientes() {
+        static int EscolherIngredientes()
+        {
             Console.Write("Quantos ingredientes você deseja (0-8)? ");
             return int.Parse(Console.ReadLine());
         }
 
-        static Pizza ComprarPizza() {
+        static Pizza ComprarPizza()
+        {
             Cabecalho();
-            
+
             Pizza novaPizza = new Pizza();
 
             Console.WriteLine("Comprando uma pizza:");
+
+            EscolherBorda(novaPizza);
+
             int quantos = EscolherIngredientes();
-         
             novaPizza.AdicionarIngredientes(quantos);
-         
+
 
             ImprimirDadosPizza(novaPizza);
 
@@ -83,10 +115,34 @@ namespace XulambsFoods {
         #endregion
 
         #region pedido
-        static void CriarPedido() {
+
+        static PedidoEntrega CriarPedidoEntrega()
+        {
+            Console.Write("Qual a distância? ");
+            double distancia = double.Parse(Console.ReadLine());
+            return new PedidoEntrega(distancia);
+        }
+        static Pedido EscolherTipoPedido()
+        {
+            Cabecalho();
+            Console.WriteLine("Escolha o tipo de pedido: ");
+            Console.WriteLine("1 - Local");
+            Console.WriteLine("2 - Para entrega");
+            Console.Write("Digite sua escolha: ");
+            int opcao = int.Parse(Console.ReadLine());
+            return opcao switch
+            {
+                1 => new Pedido(),
+                2 => CriarPedidoEntrega()
+            };
+
+        }
+        static void CriarPedido()
+        {
             string resp = "s";
-            Pedido novoPedido = new Pedido();
-            do {
+            Pedido novoPedido = EscolherTipoPedido();
+            do
+            {
                 Pizza novaPizza = ComprarPizza();
                 novoPedido.Adicionar(novaPizza);
                 Console.Write("\n\nMais pizza? ");
@@ -97,14 +153,16 @@ namespace XulambsFoods {
             pedidos.AddLast(novoPedido);
         }
 
-        static void RelatorioPedido() {
+        static void RelatorioPedido()
+        {
             Cabecalho();
             Console.Write("Número do pedido: ");
             int codigo = int.Parse(Console.ReadLine());
             ImprimirDadosPedido(LocalizarPedido(codigo));
         }
 
-        static void FecharPedido() {
+        static void FecharPedido()
+        {
             Cabecalho();
             Console.Write("Número do pedido: ");
             int codigo = int.Parse(Console.ReadLine());
@@ -115,7 +173,8 @@ namespace XulambsFoods {
             ImprimirDadosPedido(pedido);
         }
 
-        static void AlterarPedido() {
+        static void AlterarPedido()
+        {
             Cabecalho();
             Pizza novaPizza = ComprarPizza();
 
@@ -129,9 +188,11 @@ namespace XulambsFoods {
             ImprimirDadosPedido(pedido);
         }
 
-        static Pedido LocalizarPedido(int codigo) {
+        static Pedido LocalizarPedido(int codigo)
+        {
             Pedido localizado = null;
-            for (int i = 0; i < pedidos.Count && localizado == null; i++) {
+            for (int i = 0; i < pedidos.Count && localizado == null; i++)
+            {
                 Pedido candidato = pedidos.ElementAt(i);
                 if (candidato.GetID() == codigo)
                     localizado = candidato;
@@ -140,13 +201,16 @@ namespace XulambsFoods {
         }
         #endregion
 
-        static void Main(string[] args) {
+        static void Main(string[] args)
+        {
             int opcao;
             Config();
-            do {
+            do
+            {
                 opcao = MenuPrincipal();
                 Action ac =
-                opcao switch {
+                opcao switch
+                {
                     1 => () => CriarPedido(),
                     2 => () => AlterarPedido(),
                     3 => () => RelatorioPedido(),

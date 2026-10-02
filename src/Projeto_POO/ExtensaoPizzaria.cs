@@ -14,5 +14,25 @@ namespace XulambsFoods {
                 _ => 0
             };
         }
+
+        public static ETaxaEntrega DefinirEntrega(this double distancia)
+        {
+            return distancia switch
+            {
+                (<= 4)          => ETaxaEntrega.Curta,
+                (> 4 and <= 8)  => ETaxaEntrega.Media,
+                (> 8)           => ETaxaEntrega.Longa
+            };
+        }
+        public static double ValorTaxa(this ETaxaEntrega distancia)
+        {
+            return distancia switch
+            {
+                ETaxaEntrega.Curta => 0,
+                ETaxaEntrega.Media => 5,
+                ETaxaEntrega.Longa => 8,
+                _ => 0
+            };
+        }
     }
 }
