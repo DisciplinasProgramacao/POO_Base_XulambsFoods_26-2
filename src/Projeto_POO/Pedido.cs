@@ -42,19 +42,28 @@ namespace XulambsFoods {
             return preco;
         }
 
-        public virtual string Relatorio() {
+        protected string CabecalhoPedido()
+        {
             StringBuilder relat = new StringBuilder($"Pedido nº{_idPedido} - {_data}\n");
             string estado = "fechado";
             if (_aberto)
                 estado = "aberto";
             relat.AppendLine($"Pedido {estado}.");
             int i = 0;
-            foreach(Pizza pizza in _pizzas) {
+            foreach (Pizza pizza in _pizzas)
+            {
                 relat.AppendLine($"{++i:D2} {pizza.GerarCupom()}");
-                relat.AppendLine("===============");
             }
-            relat.AppendLine($"\nTOTAL DO PEDIDO: {PrecoAPagar():C2}");
             return relat.ToString();
+        }
+
+        protected virtual string RodapePedido()
+        {
+            return $"\nTOTAL DO PEDIDO: {PrecoAPagar():C2}";
+        }
+
+        public string Relatorio() {
+            return $"{CabecalhoPedido()}\n{RodapePedido()}";
         }
     }
 }

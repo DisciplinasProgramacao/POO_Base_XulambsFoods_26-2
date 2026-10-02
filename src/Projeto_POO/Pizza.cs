@@ -113,7 +113,9 @@ namespace XulambsFoods {
             cupom.AppendLine("================");
             cupom.AppendLine($"{_descricao} com borda {_borda}");
             cupom.AppendLine($"\tPizza: {PrecoBase:C2}");
-            cupom.AppendLine($"\t{_quantIngredientes} adicionais : {ValorAdicionais():C2}");
+            cupom.AppendLine($"\t{_quantIngredientes} adicionais: {ValorAdicionais():C2}");
+            cupom.AppendLine($"\tBorda {_borda}: {_borda.Valor():C2}");
+
             cupom.AppendLine($"TOTAL: {CalcularValorFinal():C2}");
             cupom.Append("================");
             return cupom.ToString();

@@ -8,23 +8,17 @@ using System.Threading.Tasks;
 namespace XulambsFoods {
     public class PedidoEntrega : Pedido {
         private const int MaxEntrega = 8;
-        private static readonly SortedList<double, double>
-            ValorEntrega;
+
+        private ETaxaEntrega _taxaEntrega;
         private double _distanciaEntrega;
 
-        static PedidoEntrega() {
-            //chave: distância máxima // valor: taxa para aquela distância
-            ValorEntrega = new SortedList<double, double>();
-            ValorEntrega.Add(8, 5);
-            ValorEntrega.Add(4, 0);
-            ValorEntrega.Add(double.PositiveInfinity, 8);
-        }
-
+       
         public PedidoEntrega(double distancia) : base()
         {
             if (distancia <= 0)
                 distancia = 0.01;
             _distanciaEntrega = distancia;
+            _taxaEntrega = _distanciaEntrega.DefinirEntrega();
         }
 
         protected override bool PodeAdicionar() { //override: modificação da regra original
@@ -32,10 +26,7 @@ namespace XulambsFoods {
         }
 
         private double ValorTaxa() {
-            int posicao = 0;
-            while (_distanciaEntrega > ValorEntrega.GetKeyAtIndex(posicao))
-                posicao++;
-            return ValorEntrega.GetValueAtIndex(posicao);
+            return _taxaEntrega.ValorTaxa();
         }
 
         public override double PrecoAPagar() {
@@ -43,10 +34,12 @@ namespace XulambsFoods {
             return valorPizzas + ValorTaxa();
         }
 
-        public override string Relatorio() {
-            string relatorioOriginal = base.Relatorio();
-            return relatorioOriginal + $"\nTAXA DE ENTREGA: {ValorTaxa():C2} ({_distanciaEntrega}km).";
+        protected override string RodapePedido()
+        {
+            StringBuilder relat = new StringBuilder();
+            relat.AppendLine($"TAXA DE ENTREGA: {ValorTaxa():C2} ({_distanciaEntrega}km).");
+            relat.AppendLine($"\nTOTAL DO PEDIDO: {PrecoAPagar():C2}");
+            return relat.ToString();
         }
-
     }
 }
