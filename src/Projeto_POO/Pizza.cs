@@ -103,12 +103,13 @@ namespace XulambsFoods {
             return _quantIngredientes;
         }
 
+    
         /// <summary>
         /// Gera o cupom de venda da pizza. O cupom contém a descrição com a quantidade de adicionais,
         /// o valor base, o valor dos adicionais e o valor total a pagar.
         /// </summary>
         /// <returns>String com os dados acima</returns>
-        public string GerarCupom() {
+        public override string ToString() {
             StringBuilder cupom = new StringBuilder("Xulambs Pizza!!!\n");
             cupom.AppendLine("================");
             cupom.AppendLine($"{_descricao} com borda {_borda}");

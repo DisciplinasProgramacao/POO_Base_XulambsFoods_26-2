@@ -20,10 +20,6 @@ namespace XulambsFoods {
             return _aberto;
         } //virtual: autorização para ser sobrescrito.
 
-        public int GetID() {
-            return _idPedido;
-        }
-
         public int Adicionar(Pizza pizza) {
             if (PodeAdicionar() && pizza != null)
                 _pizzas.AddLast(pizza);
@@ -52,7 +48,7 @@ namespace XulambsFoods {
             int i = 0;
             foreach (Pizza pizza in _pizzas)
             {
-                relat.AppendLine($"{++i:D2} {pizza.GerarCupom()}");
+                relat.AppendLine($"{++i:D2} {pizza.ToString()}");
             }
             return relat.ToString();
         }
@@ -62,8 +58,18 @@ namespace XulambsFoods {
             return $"\nTOTAL DO PEDIDO: {PrecoAPagar():C2}";
         }
 
-        public string Relatorio() {
+        
+        public override string ToString() {
             return $"{CabecalhoPedido()}\n{RodapePedido()}";
+        }
+
+        public override bool Equals(object? obj) {
+            Pedido outro = obj as Pedido;
+            return this._idPedido == outro._idPedido;
+        }
+
+        public override int GetHashCode() {
+            return _idPedido;
         }
     }
 }

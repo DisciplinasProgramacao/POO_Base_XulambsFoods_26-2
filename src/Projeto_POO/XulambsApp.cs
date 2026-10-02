@@ -49,23 +49,16 @@ namespace XulambsFoods
         #endregion
 
         #region relatorios
-        static void ImprimirDadosPedido(Pedido pedido)
+        static void ImprimirDados(object objeto)
         {
             Cabecalho();
 
             //null safety para impressão: se não existir, pega uma string "padrão"
-            string msg = pedido?.Relatorio() ?? "Pedido não encontrado.";
+            string msg = objeto?.ToString() ?? "Objeto não encontrado.";
 
             Console.WriteLine(msg);
         }
 
-        static void ImprimirDadosPizza(Pizza pizza)
-        {
-            Console.WriteLine();
-            Console.WriteLine("Pizza comprada:\n ");
-            Console.WriteLine(pizza.GerarCupom());
-            Pausa();
-        }
         #endregion
 
         #region borda
@@ -108,7 +101,7 @@ namespace XulambsFoods
             novaPizza.AdicionarIngredientes(quantos);
 
 
-            ImprimirDadosPizza(novaPizza);
+            ImprimirDados(novaPizza);
 
             return novaPizza;
         }
@@ -122,6 +115,7 @@ namespace XulambsFoods
             double distancia = double.Parse(Console.ReadLine());
             return new PedidoEntrega(distancia);
         }
+
         static Pedido EscolherTipoPedido()
         {
             Cabecalho();
@@ -149,7 +143,7 @@ namespace XulambsFoods
                 resp = Console.ReadLine();
             } while (resp.ToLower().Equals("s"));
 
-            ImprimirDadosPedido(novoPedido);
+            ImprimirDados(novoPedido);
             pedidos.AddLast(novoPedido);
         }
 
@@ -158,7 +152,8 @@ namespace XulambsFoods
             Cabecalho();
             Console.Write("Número do pedido: ");
             int codigo = int.Parse(Console.ReadLine());
-            ImprimirDadosPedido(LocalizarPedido(codigo));
+            Pedido pedido = Localizar(codigo) as Pedido;   //conversão segura: objeto ou nulo
+            ImprimirDados(pedido);
         }
 
         static void FecharPedido()
@@ -167,10 +162,10 @@ namespace XulambsFoods
             Console.Write("Número do pedido: ");
             int codigo = int.Parse(Console.ReadLine());
 
-            Pedido pedido = LocalizarPedido(codigo);
-            pedido?.FecharPedido();         //null safety: só executa se o pedido existir
+            Pedido pedido = Localizar(codigo) as Pedido;   //conversão segura: objeto ou nulo
+            pedido?.FecharPedido();             //null safety: só executa se o pedido existir
 
-            ImprimirDadosPedido(pedido);
+            ImprimirDados(pedido);
         }
 
         static void AlterarPedido()
@@ -181,20 +176,20 @@ namespace XulambsFoods
             Console.Write("Número do pedido: ");
             int codigo = int.Parse(Console.ReadLine());
 
-            Pedido pedido = LocalizarPedido(codigo);
+            Pedido pedido = Localizar(codigo) as Pedido;   //conversão segura: objeto ou nulo
             if (pedido != null)
                 pedido.Adicionar(novaPizza);
 
-            ImprimirDadosPedido(pedido);
+            ImprimirDados(pedido);
         }
 
-        static Pedido LocalizarPedido(int codigo)
+        static object Localizar(int codigo)
         {
-            Pedido localizado = null;
+            object localizado = null;
             for (int i = 0; i < pedidos.Count && localizado == null; i++)
             {
-                Pedido candidato = pedidos.ElementAt(i);
-                if (candidato.GetID() == codigo)
+                object candidato = pedidos.ElementAt(i);
+                if (candidato.GetHashCode() == codigo)
                     localizado = candidato;
             }
             return localizado;
