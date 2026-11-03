@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace XulambsFoods {
-    public class Sobremesa : Produto{
+    public class Sobremesa : IProduto{
         private ESobremesa _tipo;
 
         public Sobremesa(ESobremesa tipo) {

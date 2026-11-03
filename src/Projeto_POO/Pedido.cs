@@ -5,11 +5,11 @@ namespace XulambsFoods {
         private static int s_ultimoPedido=0;
         private int _idPedido;
         private DateOnly _data;
-        protected LinkedList<Produto> _produtos;
+        protected LinkedList<IProduto> _produtos;
         private bool _aberto;
 
         public Pedido() {
-            _produtos = new LinkedList<Produto>();
+            _produtos = new LinkedList<IProduto>();
             _aberto = true;
             _data =  DateOnly.FromDateTime(DateTime.Now);
             s_ultimoPedido++;
@@ -31,7 +31,7 @@ namespace XulambsFoods {
             return _produtos.Count;
         }
 
-        public int Adicionar(Produto produto) {
+        public int Adicionar(IProduto produto) {
             if (produto == null)
                 throw new ArgumentNullException("Produto não foi escolhido");
 
@@ -48,7 +48,7 @@ namespace XulambsFoods {
         
         protected double ValorItens(){
             double preco = 0d;
-            foreach (Produto prod in _produtos) {
+            foreach (IProduto prod in _produtos) {
                 preco += prod.CalcularValorFinal();
             }
             return preco;
@@ -62,7 +62,7 @@ namespace XulambsFoods {
                 estado = "aberto";
             relat.AppendLine($"Pedido {estado}.");
             int i = 0;
-            foreach (Produto prod in _produtos)
+            foreach (IProduto prod in _produtos)
             {
                 relat.AppendLine($"{++i:D2} {prod.ToString()}");
             }

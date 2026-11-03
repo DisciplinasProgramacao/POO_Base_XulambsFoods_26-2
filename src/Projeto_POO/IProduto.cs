@@ -1,5 +1,5 @@
 ﻿namespace XulambsFoods {
-    public interface Produto {
+    public interface IProduto {
         public abstract double CalcularValorFinal();        
     }
 }
