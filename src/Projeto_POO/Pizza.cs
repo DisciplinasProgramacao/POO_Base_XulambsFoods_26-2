@@ -3,7 +3,7 @@ using System.Text;
 
 
 namespace XulambsFoods {    
-    public class Pizza {
+    public class Pizza : Produto {
 
         /// <summary>
         /// Lembre-se:
@@ -105,21 +105,20 @@ namespace XulambsFoods {
             return _quantIngredientes;
         }
 
-    
         /// <summary>
         /// Gera o cupom de venda da pizza. O cupom contém a descrição com a quantidade de adicionais,
         /// o valor base, o valor dos adicionais e o valor total a pagar.
         /// </summary>
         /// <returns>String com os dados acima</returns>
         public override string ToString() {
-            StringBuilder cupom = new StringBuilder("Xulambs Pizza!!!\n");
-            cupom.AppendLine("================");
+            StringBuilder cupom = new StringBuilder();
+            
             cupom.AppendLine($"{_descricao} com borda {_borda}");
             cupom.AppendLine($"\tPizza: {PrecoBase:C2}");
             cupom.AppendLine($"\t{_quantIngredientes} adicionais: {ValorAdicionais():C2}");
             cupom.AppendLine($"\tBorda {_borda}: {_borda.Valor():C2}");
 
-            cupom.AppendLine($"TOTAL: {CalcularValorFinal():C2}");
+            cupom.AppendLine($"\n\tVALOR: {CalcularValorFinal():C2}");
             cupom.Append("================");
             return cupom.ToString();
         }
@@ -133,6 +132,5 @@ namespace XulambsFoods {
          *                        _descricao<---------------------/
          */
         #endregion
-
     }
 }
