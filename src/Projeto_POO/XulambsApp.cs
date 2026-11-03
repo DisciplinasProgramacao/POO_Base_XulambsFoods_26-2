@@ -7,7 +7,7 @@ namespace XulambsFoods
     public class XulambsApp
     {
         static LinkedList<Pedido> pedidos;
-        static string versao = "0.5";
+        static string versao = "0.6";
 
         #region utilidades
         static void Pausa()
@@ -16,6 +16,21 @@ namespace XulambsFoods
             Console.ReadKey();
         }
 
+        static int LerInteiro()
+        {
+            int opcao;
+            try
+            {
+                opcao = int.Parse(Console.ReadLine());
+            }
+            catch (FormatException)
+            {
+                Console.WriteLine("Somente valores numéricos");
+                opcao = 99;
+            }
+            return opcao;
+        }
+        
         static void Cabecalho()
         {
             Console.Clear();
@@ -32,17 +47,6 @@ namespace XulambsFoods
         }
         #endregion
 
-        static int LerInteiro() {
-            int opcao;
-            try {
-                opcao = int.Parse(Console.ReadLine());
-            }
-            catch (FormatException) {
-                Console.WriteLine("Somente valores numéricos");
-                opcao = 99;
-            }
-            return opcao;
-        }
         #region menus
         static int MenuPrincipal()
         {
@@ -121,7 +125,7 @@ namespace XulambsFoods
         #endregion
 
         #region sobremesa
-        static Produto ComprarSobremesa() {
+        static IProduto ComprarSobremesa() {
             int opcao = MenuSobremesas();
             ESobremesa tipo = Enum.GetValues<ESobremesa>()[opcao - 1];
             return new Sobremesa(tipo);
@@ -136,6 +140,13 @@ namespace XulambsFoods
             return LerInteiro();
         }
 
+        static int EscolherIngredientes(IPersonalizavel item)
+        {
+            int quantos = EscolherIngredientes();
+            int total = item.AdicionarIngredientes(quantos);
+            return total;
+        }
+
         static Pizza ComprarPizza()
         {
             Cabecalho();
@@ -143,10 +154,8 @@ namespace XulambsFoods
 
             Pizza novaPizza = new Pizza();
             EscolherBorda(novaPizza);
-
-            int quantos = EscolherIngredientes();
             try {
-                novaPizza.AdicionarIngredientes(quantos);
+                EscolherIngredientes(novaPizza);
                 ImprimirDados(novaPizza);
             }
             catch (ArgumentException excecao) {
@@ -165,9 +174,8 @@ namespace XulambsFoods
         #endregion
 
         #region produto
-        static Produto? ComprarProduto() {
-            Pizza p;
-            
+        static IProduto? ComprarProduto() {
+                   
             int opcao = MenuProdutos();
             return opcao switch {
                 1 => ComprarPizza(),
@@ -203,13 +211,14 @@ namespace XulambsFoods
             };
 
         }
+        
         static void CriarPedido()
         {
             string resp = "s";
             Pedido novoPedido = EscolherTipoPedido();
             do
             {
-                Produto produto = ComprarProduto();
+                IProduto produto = ComprarProduto();
                 novoPedido.Adicionar(produto);
                 Console.Write("\n\nAlgo mais (s/n)? ");
                 resp = Console.ReadLine();
