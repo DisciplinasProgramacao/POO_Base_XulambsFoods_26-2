@@ -69,7 +69,8 @@ namespace XulambsFoods
             Console.WriteLine("Quer comprar o quê?");
             StringBuilder menu = new StringBuilder();
             menu.AppendLine("1 - Pizzas");
-            menu.AppendLine("2 - Sobremesas");
+            menu.AppendLine("2 - Sanduíches");
+            menu.AppendLine("3 - Sobremesas");
             menu.AppendLine("0 - Desistir");
             menu.Append("Sua opção: ");
             Console.Write(menu.ToString());
@@ -140,11 +141,35 @@ namespace XulambsFoods
             return LerInteiro();
         }
 
-        static int EscolherIngredientes(IPersonalizavel item)
+        static IProduto ComprarPersonalizavel(int opcao)
         {
-            int quantos = EscolherIngredientes();
-            int total = item.AdicionarIngredientes(quantos);
-            return total;
+            IPersonalizavel item = opcao switch
+            {
+                1 => ComprarPizza(),
+                2 => ComprarSanduiche()
+            };
+            return (IProduto)EscolherIngredientes(item);
+        }
+
+       static IPersonalizavel EscolherIngredientes(IPersonalizavel item)
+        {
+            try
+            {
+                int quantos = EscolherIngredientes();
+                item.AdicionarIngredientes(quantos);
+            }
+            catch (ArgumentException excecao)
+            {
+                Console.WriteLine(excecao.Message);
+                Pausa();
+                return EscolherIngredientes(item);
+            }
+            catch (InvalidOperationException excecao)
+            {
+                Console.WriteLine(excecao.Message);
+            }
+            return item;
+
         }
 
         static Pizza ComprarPizza()
@@ -154,21 +179,7 @@ namespace XulambsFoods
 
             Pizza novaPizza = new Pizza();
             EscolherBorda(novaPizza);
-            try {
-                EscolherIngredientes(novaPizza);
-                ImprimirDados(novaPizza);
-            }
-            catch (ArgumentException excecao) {
-                Console.WriteLine(excecao.Message);
-                Pausa();
-                return ComprarPizza();
-            }
-            catch (InvalidOperationException excecao) {
-                Console.WriteLine(excecao.Message);
-                novaPizza = new Pizza(8);
-            }
             
-
             return novaPizza;
         }
         #endregion
@@ -178,11 +189,24 @@ namespace XulambsFoods
                    
             int opcao = MenuProdutos();
             return opcao switch {
-                1 => ComprarPizza(),
-                2 => ComprarSobremesa(),
+                1 or 2 => ComprarPersonalizavel(opcao),
+                3 => ComprarSobremesa(),
                 _ => null
             };
 
+
+        }
+
+        private static IPersonalizavel ComprarSanduiche()
+        {
+            Cabecalho();
+            Console.WriteLine("Comprando um sanduíche");
+            Sanduiche sanduba = new Sanduiche();
+            Console.Write("Quer fritas? (s/n)");
+            string combo = Console.ReadLine().ToLower();
+            if (combo.Equals("s"))
+                sanduba.SetCombo(true);
+            return sanduba;
         }
 
         #endregion
@@ -220,6 +244,7 @@ namespace XulambsFoods
             {
                 IProduto produto = ComprarProduto();
                 novoPedido.Adicionar(produto);
+                ImprimirDados(produto);
                 Console.Write("\n\nAlgo mais (s/n)? ");
                 resp = Console.ReadLine();
             } while (resp.ToLower().Equals("s"));
@@ -260,8 +285,8 @@ namespace XulambsFoods
             {
                 try
                 {
-                    Pizza novaPizza = ComprarPizza();
-                    pedido.Adicionar(novaPizza);
+                    IProduto produto = ComprarProduto();
+                    pedido.Adicionar(produto);
                     ImprimirDados(pedido);
                 }
                 catch (PedidoFechadoException fechado)

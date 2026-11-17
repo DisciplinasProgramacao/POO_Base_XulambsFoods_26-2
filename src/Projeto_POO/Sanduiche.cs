@@ -35,7 +35,7 @@ namespace XulambsFoods
 
         public double CalcularValorFinal()
         {
-            double precoBase = 18 + 3 * _adicionais;
+            double precoBase = PrecoBase + ValorAdicionais();
             if (_combo)
                 precoBase += ValorCombo;
             return precoBase;
