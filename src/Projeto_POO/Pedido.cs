@@ -7,6 +7,7 @@ namespace XulambsFoods {
         private DateOnly _data;
         protected LinkedList<IProduto> _produtos;
         private bool _aberto;
+        private double _desconto;
 
         public Pedido() {
             _produtos = new LinkedList<IProduto>();
@@ -14,8 +15,10 @@ namespace XulambsFoods {
             _data =  DateOnly.FromDateTime(DateTime.Now);
             s_ultimoPedido++;
             _idPedido = _data.Day*100 + s_ultimoPedido;
+            _desconto = 0d;
         }
 
+        
         protected virtual void PodeAdicionar() {
             if (!_aberto)
                 throw new PedidoFechadoException();
@@ -45,7 +48,23 @@ namespace XulambsFoods {
         }
 
         public abstract double PrecoAPagar();
-        
+
+        protected double GetDesconto()
+        {
+            return _desconto;
+        }
+
+        public double AplicarDesconto(double valor)
+        {
+            if (valor < 0)
+                throw new ArgumentOutOfRangeException();
+            if (_desconto != 0)
+                throw new InvalidOperationException();
+
+            _desconto = valor;
+            return _desconto;
+        }
+
         protected double ValorItens(){
             double preco = 0d;
             foreach (IProduto prod in _produtos) {
@@ -66,7 +85,8 @@ namespace XulambsFoods {
             {
                 relat.AppendLine($"{++i:D2} {prod.ToString()}");
             }
-            relat.AppendLine($"\nVALOR: {ValorItens():C2}");
+            relat.AppendLine($"\nITENS: {ValorItens():C2}");
+            relat.AppendLine($"DESCONTO: {_desconto:C2}");
             return relat.ToString();
         }
 

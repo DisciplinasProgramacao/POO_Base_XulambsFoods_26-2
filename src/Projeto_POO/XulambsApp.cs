@@ -7,6 +7,7 @@ namespace XulambsFoods
     public class XulambsApp
     {
         static LinkedList<Pedido> pedidos;
+        static LinkedList<Cliente> clientes;
         static string versao = "0.6";
 
         #region utilidades
@@ -19,6 +20,7 @@ namespace XulambsFoods
         static int LerInteiro()
         {
             int opcao;
+            Console.Write("Código: ");
             try
             {
                 opcao = int.Parse(Console.ReadLine());
@@ -43,6 +45,9 @@ namespace XulambsFoods
         static void Config()
         {
             pedidos = new LinkedList<Pedido>();
+            clientes = new LinkedList<Cliente>();
+            Cliente xulambinho = new Cliente("Jonny Boy", 1);
+            clientes.AddLast(xulambinho);
 
         }
         #endregion
@@ -57,6 +62,9 @@ namespace XulambsFoods
             menu.AppendLine("2 - Alterar pedido");
             menu.AppendLine("3 - Relatório de pedido");
             menu.AppendLine("4 - Fechar pedido");
+            menu.AppendLine("===================");
+            menu.AppendLine("5 - Resumo do cliente");
+            menu.AppendLine("6 - Atualizar clientes");
             menu.AppendLine("0 - Finalizar");
             menu.Append("Sua opção: ");
             Console.Write(menu.ToString());
@@ -258,7 +266,7 @@ namespace XulambsFoods
             Cabecalho();
             Console.Write("Número do pedido: ");
             int codigo = LerInteiro();
-            Pedido pedido = Localizar(codigo) as Pedido;   //conversão segura: objeto ou nulo
+            Pedido pedido = Localizar<Pedido>(codigo, pedidos);   //conversão segura: objeto ou nulo
             ImprimirDados(pedido);
         }
 
@@ -268,9 +276,11 @@ namespace XulambsFoods
             Console.Write("Número do pedido: ");
             int codigo = LerInteiro();
 
-            Pedido pedido = Localizar(codigo) as Pedido;   //conversão segura: objeto ou nulo
+            Pedido pedido = Localizar<Pedido>(codigo, pedidos);   //conversão segura: objeto ou nulo
+            Cliente cliente= Localizar<Cliente>(1, clientes);
+          
             pedido?.FecharPedido();             //null safety: só executa se o pedido existir
-
+            cliente.RegistrarPedido(pedido);
             ImprimirDados(pedido);
         }
 
@@ -279,7 +289,7 @@ namespace XulambsFoods
             Cabecalho();
             Console.Write("Número do pedido: ");
             int codigo = LerInteiro();          
-            Pedido pedido = Localizar(codigo) as Pedido;   //conversão segura: objeto ou nulo
+            Pedido pedido = Localizar(codigo, pedidos);   //conversão segura: objeto ou nulo
             
             if (pedido != null)
             {
@@ -309,12 +319,12 @@ namespace XulambsFoods
             };
         }
 
-        static object Localizar(int codigo)
+        static T Localizar<T>(int codigo, LinkedList<T> lista)
         {
-            object localizado = null;
-            for (int i = 0; i < pedidos.Count && localizado == null; i++)
+            T localizado = default;
+            for (int i = 0; i < lista.Count && localizado == null; i++)
             {
-                object candidato = pedidos.ElementAt(i);
+                T candidato = lista.ElementAt(i);
                 if (candidato.GetHashCode() == codigo)
                     localizado = candidato;
             }
@@ -336,11 +346,31 @@ namespace XulambsFoods
                     2 => () => AlterarPedido(),
                     3 => () => RelatorioPedido(),
                     4 => () => FecharPedido(),
+                    5 => () => RelatorioCliente(),
+                    6 => () => AtualizarClientes(),
                     _ => () => Pausa()
                 };
                 ac.Invoke();
                 Pausa();
             } while (opcao != 0);
+        }
+
+        private static void AtualizarClientes()
+        {
+            Cabecalho();
+            foreach(Cliente c in clientes)
+            {
+                c.AtualizarCategoria();
+            }
+            Console.WriteLine("Clientes atualizados");
+        }
+
+        private static void RelatorioCliente()
+        {
+            Cabecalho();
+            int cod = LerInteiro();
+            Cliente cli = Localizar(cod, clientes);
+            Console.WriteLine(cli.ToString());
         }
     }
 }

@@ -9,7 +9,7 @@ namespace XulambsFoods {
 
         private const double Servico = 0.1;
         public override double PrecoAPagar() {
-            return ValorItens() + TaxaServico();
+            return ValorItens() + TaxaServico() - GetDesconto();
         }
 
         private double TaxaServico() {
