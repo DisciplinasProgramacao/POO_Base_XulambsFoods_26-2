@@ -32,7 +32,7 @@ namespace XulambsFoods {
         }
 
         public override double PrecoAPagar() {
-            return ValorItens() + ValorTaxa();
+            return ValorItens() + ValorTaxa() - GetDesconto();
         }
 
         protected override string RodapePedido()
