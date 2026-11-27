@@ -52,7 +52,7 @@ namespace XulambsFoods
 
         public override string ToString()
         {
-            return $"{_nome} ({_id}) - Total Gasto: {TotalGasto():C2}";
+            return $"{_nome} ({_id}) - Cliente {_categoria} - Total Gasto: {TotalGasto():C2}";
         }
 
         public override int GetHashCode()
@@ -62,7 +62,7 @@ namespace XulambsFoods
 
         public void AtualizarCategoria()
         {
-            _categoria = .....;
+            _categoria = IFidelidade.DefinirCategoria(_pedidos);
         }
     }
 }
