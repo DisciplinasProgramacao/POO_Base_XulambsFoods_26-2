@@ -1,5 +1,6 @@
 ﻿
 
+using System.ComponentModel;
 using System.Text;
 
 namespace XulambsFoods
@@ -44,11 +45,14 @@ namespace XulambsFoods
         #region configuração
         static void Config()
         {
-            pedidos = new Dados<Pedido>();
-            clientes = new Dados<Cliente>();
-            Cliente xulambinho = new Cliente("Jonny Boy", 1);
-            clientes.Adicionar(xulambinho);
-
+            List<Cliente> cli = GeradorClientes.gerarClientes();
+            List<Pedido> ped = GeradorPedidos.gerarPedidos(
+                                DateTime.Now.AddDays(-20),
+                                DateTime.Now,
+                                cli,
+                                9);                
+            pedidos = new Dados<Pedido>(ped);
+            clientes = new Dados<Cliente>(cli);
         }
         #endregion
 
@@ -63,8 +67,13 @@ namespace XulambsFoods
             menu.AppendLine("3 - Relatório de pedido");
             menu.AppendLine("4 - Fechar pedido");
             menu.AppendLine("===================");
-            menu.AppendLine("5 - Resumo do cliente");
-            menu.AppendLine("6 - Atualizar clientes");
+            menu.AppendLine("5 - Listar clientes");
+            menu.AppendLine("6 - Resumo do cliente");
+            menu.AppendLine("7 - Atualizar clientes");
+            menu.AppendLine("8 - Total vendido");
+            menu.AppendLine("9 - Pedidos de um dia");
+            menu.AppendLine("10 - Cliente que mais gastou");
+
             menu.AppendLine("0 - Finalizar");
             menu.Append("Sua opção: ");
             Console.Write(menu.ToString());
@@ -238,7 +247,7 @@ namespace XulambsFoods
             int opcao = LerInteiro();
             return opcao switch
             {
-                1 => new PedidoLocal(),
+                1 => new PedidoLocal(DateTime.Now),
                 2 => CriarPedidoEntrega()
             };
 
@@ -335,8 +344,12 @@ namespace XulambsFoods
                             2 => () => AlterarPedido(),
                             3 => () => RelatorioPedido(),
                             4 => () => FecharPedido(),
-                            5 => () => RelatorioCliente(),
-                            6 => () => AtualizarClientes(),
+                            5 => () => ListarClientes(),
+                            6 => () => RelatorioCliente(),
+                            7 => () => AtualizarClientes(),
+                            8 => () => TotalVendido(),
+                            9 => () => PedidosDoDia(),
+                            10 => () => MaiorGastador(),
                             _ => () => Pausa()
                         };
                 ac.Invoke();
@@ -344,11 +357,53 @@ namespace XulambsFoods
             } while (opcao != 0);
         }
 
+        private static void MaiorGastador() {
+            Cabecalho();
+            Console.WriteLine("Maior cliente do Xulambs Foods:");
+          
+            Comparison<Cliente> comparacao =
+                (cli1, cli2) => {
+                    double diferenca = cli1.TotalGasto() - cli2.TotalGasto();
+                    if (diferenca == 0)
+                        return 0;
+                    return diferenca > 0 ? 1 : -1;
+                };
+           
+            Cliente maior = clientes.Maior(comparacao);
+            Console.WriteLine(maior);
+        }
+
+        private static void PedidosDoDia() {
+            Cabecalho();
+            Console.WriteLine("Pedidos filtrados por uma data:");
+            Console.Write("Digite a data (dd/mm/aaaa): ");
+            string data = Console.ReadLine();
+
+            Predicate<Pedido> condicao = (ped) => ped.ToString().Contains(data);
+            Func<Pedido, string> relat =
+                (p) => $"Pedido nº{p.GetHashCode()} - Valor: {p.PrecoAPagar():C2}";
+
+            Console.WriteLine(pedidos.RelatorioFiltrado(condicao, relat));
+        }
+
+        private static void TotalVendido() {
+            Cabecalho();
+            Func<Pedido, double> funcao = (ped) => ped.PrecoAPagar();
+            double valor = pedidos.Somar(funcao);
+            Console.WriteLine($"Total vendido pelo restaurante: {valor:C2}");
+        }
+
+        private static void ListarClientes() {
+            Cabecalho();
+            Console.WriteLine("Clientes Xulambs");
+            Console.WriteLine(clientes.ToString());
+        }
+                
+
         private static void AtualizarClientes()
         {
             Cabecalho();
-            Action<Cliente> metodo =
-                     (cli) => cli.AtualizarCategoria();
+            Action<Cliente> metodo = (cli) => cli.AtualizarCategoria();
             clientes.Atualizar(metodo);
             Console.WriteLine("Clientes atualizados");
         }
@@ -356,17 +411,17 @@ namespace XulambsFoods
         private static void EncerrarExpediente()
         {
             Cabecalho();
-            Action<Pedido> metodo =
-                (ped) => ped.FecharPedido();
+            Action<Pedido> metodo = (ped) => ped.FecharPedido();
             pedidos.Atualizar(metodo);
             Console.WriteLine("Pedidos fechados.");
         }
+
         private static void RelatorioCliente()
         {
             Cabecalho();
             int cod = LerInteiro();
             Cliente cli = clientes.Localizar(cod);
-            Console.WriteLine(cli.ToString());
+            Console.WriteLine(cli.RelatorioPedidos());
         }
     }
 }
