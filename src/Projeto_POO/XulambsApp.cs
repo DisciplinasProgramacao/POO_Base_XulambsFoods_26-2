@@ -6,9 +6,9 @@ namespace XulambsFoods
 {
     public class XulambsApp
     {
-        static LinkedList<Pedido> pedidos;
-        static LinkedList<Cliente> clientes;
-        static string versao = "0.6";
+        static Dados<Pedido> pedidos;
+        static Dados<Cliente> clientes;
+        static string versao = "0.8";
 
         #region utilidades
         static void Pausa()
@@ -44,10 +44,10 @@ namespace XulambsFoods
         #region configuração
         static void Config()
         {
-            pedidos = new LinkedList<Pedido>();
-            clientes = new LinkedList<Cliente>();
+            pedidos = new Dados<Pedido>();
+            clientes = new Dados<Cliente>();
             Cliente xulambinho = new Cliente("Jonny Boy", 1);
-            clientes.AddLast(xulambinho);
+            clientes.Adicionar(xulambinho);
 
         }
         #endregion
@@ -258,7 +258,7 @@ namespace XulambsFoods
             } while (resp.ToLower().Equals("s"));
 
             ImprimirDados(novoPedido);
-            pedidos.AddLast(novoPedido);
+            pedidos.Adicionar(novoPedido);
         }
 
         static void RelatorioPedido()
@@ -266,7 +266,7 @@ namespace XulambsFoods
             Cabecalho();
             Console.Write("Número do pedido: ");
             int codigo = LerInteiro();
-            Pedido pedido = Localizar<Pedido>(codigo, pedidos);   //conversão segura: objeto ou nulo
+            Pedido pedido = pedidos.Localizar(codigo);   //conversão segura: objeto ou nulo
             ImprimirDados(pedido);
         }
 
@@ -276,8 +276,8 @@ namespace XulambsFoods
             Console.Write("Número do pedido: ");
             int codigo = LerInteiro();
 
-            Pedido pedido = Localizar<Pedido>(codigo, pedidos);   //conversão segura: objeto ou nulo
-            Cliente cliente= Localizar<Cliente>(1, clientes);
+            Pedido pedido = pedidos.Localizar(codigo);   //conversão segura: objeto ou nulo
+            Cliente cliente= clientes.Localizar(1);
           
             pedido?.FecharPedido();             //null safety: só executa se o pedido existir
             cliente.RegistrarPedido(pedido);
@@ -288,8 +288,8 @@ namespace XulambsFoods
         {
             Cabecalho();
             Console.Write("Número do pedido: ");
-            int codigo = LerInteiro();          
-            Pedido pedido = Localizar(codigo, pedidos);   //conversão segura: objeto ou nulo
+            int codigo = LerInteiro();
+            Pedido pedido = pedidos.Localizar(codigo);//conversão segura: objeto ou nulo
             
             if (pedido != null)
             {
@@ -319,18 +319,7 @@ namespace XulambsFoods
             };
         }
 
-        static T Localizar<T>(int codigo, LinkedList<T> lista)
-        {
-            T localizado = default;
-            for (int i = 0; i < lista.Count && localizado == null; i++)
-            {
-                T candidato = lista.ElementAt(i);
-                if (candidato.GetHashCode() == codigo)
-                    localizado = candidato;
-            }
-            return localizado;
-        }
-        #endregion
+         #endregion
 
         static void Main(string[] args)
         {
@@ -340,16 +329,16 @@ namespace XulambsFoods
             {
                 opcao = MenuPrincipal();
                 Action ac =
-                opcao switch
-                {
-                    1 => () => CriarPedido(),
-                    2 => () => AlterarPedido(),
-                    3 => () => RelatorioPedido(),
-                    4 => () => FecharPedido(),
-                    5 => () => RelatorioCliente(),
-                    6 => () => AtualizarClientes(),
-                    _ => () => Pausa()
-                };
+                        opcao switch
+                        {
+                            1 => () => CriarPedido(),
+                            2 => () => AlterarPedido(),
+                            3 => () => RelatorioPedido(),
+                            4 => () => FecharPedido(),
+                            5 => () => RelatorioCliente(),
+                            6 => () => AtualizarClientes(),
+                            _ => () => Pausa()
+                        };
                 ac.Invoke();
                 Pausa();
             } while (opcao != 0);
@@ -358,18 +347,25 @@ namespace XulambsFoods
         private static void AtualizarClientes()
         {
             Cabecalho();
-            foreach(Cliente c in clientes)
-            {
-                c.AtualizarCategoria();
-            }
+            Action<Cliente> metodo =
+                     (cli) => cli.AtualizarCategoria();
+            clientes.Atualizar(metodo);
             Console.WriteLine("Clientes atualizados");
         }
 
+        private static void EncerrarExpediente()
+        {
+            Cabecalho();
+            Action<Pedido> metodo =
+                (ped) => ped.FecharPedido();
+            pedidos.Atualizar(metodo);
+            Console.WriteLine("Pedidos fechados.");
+        }
         private static void RelatorioCliente()
         {
             Cabecalho();
             int cod = LerInteiro();
-            Cliente cli = Localizar(cod, clientes);
+            Cliente cli = clientes.Localizar(cod);
             Console.WriteLine(cli.ToString());
         }
     }
