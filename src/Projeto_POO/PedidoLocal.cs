@@ -8,6 +8,10 @@ namespace XulambsFoods {
     public class PedidoLocal : Pedido {
 
         private const double Servico = 0.1;
+        
+        public PedidoLocal(DateTime quando) : base(){
+            _data = DateOnly.FromDateTime(quando);
+        }
         public override double PrecoAPagar() {
             return ValorItens() + TaxaServico() - GetDesconto();
         }

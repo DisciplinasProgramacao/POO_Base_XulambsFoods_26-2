@@ -4,7 +4,7 @@ namespace XulambsFoods {
     public abstract class Pedido {
         private static int s_ultimoPedido=0;
         private int _idPedido;
-        private DateOnly _data;
+        protected DateOnly _data;
         protected LinkedList<IProduto> _produtos;
         private bool _aberto;
         private double _desconto;
@@ -17,7 +17,6 @@ namespace XulambsFoods {
             _idPedido = _data.Day*100 + s_ultimoPedido;
             _desconto = 0d;
         }
-
         
         protected virtual void PodeAdicionar() {
             if (!_aberto)
