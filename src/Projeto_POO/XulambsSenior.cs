@@ -22,5 +22,9 @@ namespace XulambsFoods
             quantPedidos++;
             return desconto;
         }
+
+        public override string ToString() {
+            return "Xulambs Senior";
+        }
     }
 }

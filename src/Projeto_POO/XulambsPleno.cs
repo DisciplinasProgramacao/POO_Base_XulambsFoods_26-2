@@ -14,5 +14,9 @@ namespace XulambsFoods
         {
             return pedido.PrecoAPagar() * DescontoProporcional;
         }
+
+        public override string ToString() {
+            return "Xulambs Pleno";
+        }
     }
 }

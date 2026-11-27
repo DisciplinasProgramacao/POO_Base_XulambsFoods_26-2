@@ -16,5 +16,9 @@ namespace XulambsFoods
             double preco = pedido.PrecoAPagar();
             return preco > MinPedido ? DescontoFixo : 0d;   
         }
+
+        public override string ToString() {
+            return "Xulambs Junior";
+        }
     }
 }
