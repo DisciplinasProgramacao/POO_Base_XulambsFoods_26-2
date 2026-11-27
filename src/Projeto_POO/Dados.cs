@@ -16,6 +16,10 @@ namespace XulambsFoods
             meusDados = new LinkedList<T>();
         }
 
+        public Dados(ICollection<T> lista) {
+            meusDados = new LinkedList<T>(lista);
+        }
+
         public int Adicionar(T novoElemento)
         {
             if (novoElemento == null)
@@ -38,11 +42,7 @@ namespace XulambsFoods
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder(); ;
-            foreach(T dado in meusDados){
-                sb.AppendLine($"{dado}");
-            };
-            return sb.ToString(); ;
+            return Relatorio((t) => t.ToString());
         }
 
         public void Atualizar(Action<T> metodo)
@@ -51,6 +51,64 @@ namespace XulambsFoods
             {
                 metodo.Invoke(dado);
             }
+        }
+
+        public double Somar(Func<T, double> funcao) {
+            return meusDados.Sum(funcao);
+
+            //double valor = 0d;
+            //foreach(T dado in meusDados) {
+            //    valor += funcao.Invoke(dado);
+            //}
+            //return valor;
+        }
+
+        public LinkedList<T> Filtrar(Predicate<T> condicao) {
+            LinkedList<T> filtro = new LinkedList<T>();
+            foreach (T dado in meusDados) {
+                if (condicao.Invoke(dado))
+                    filtro.AddLast(dado);
+            }
+            return filtro;
+        }
+
+        public string Relatorio(Func<T, string> relatorio) {
+            StringBuilder sb = new StringBuilder(); ;
+            foreach (T dado in meusDados) {
+                sb.AppendLine($"{relatorio.Invoke(dado)}");
+            };
+            return sb.ToString(); ;
+        }
+
+        public string RelatorioFiltrado(Predicate<T> condicao, 
+                                        Func<T, string> relatorio
+                                        ) {
+            Dados<T> listaFiltrada = new Dados<T>(Filtrar(condicao));
+            return Relatorio(relatorio);
+
+            //StringBuilder sb = new StringBuilder();
+            //foreach (T dado in meusDados) {
+            //    if (condicao.Invoke(dado)) {
+            //        string pedaco = relatorio.Invoke(dado);
+            //        sb.AppendLine(pedaco);
+            //    }
+            //}
+            //return sb.ToString();
+        }
+
+        public T Maior(Comparison<T> comparacao) {
+            T maior = meusDados.ElementAt(0);
+            foreach (T dado in meusDados) {
+                if (comparacao.Invoke(dado, maior) > 0)
+                    maior = dado;
+            }
+            return maior;
+        }
+
+        public T Maiorzao(Comparison<T> comparacao) {
+            Comparer<T> comparador = Comparer<T>.Create(comparacao);
+
+            return meusDados.Max(comparador);
         }
     }
 }
